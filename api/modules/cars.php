@@ -14,6 +14,25 @@ function cars_detail($id)
   return ok($car);
 }
 
+function cars_search($keyword)
+{
+  // gunakan LIKE untuk mencari di beberapa kolom
+  $stmt = db()->prepare("
+    SELECT id,title,brand,model,year,price,stock,image_path,description
+    FROM cars
+    WHERE title LIKE :kw
+       OR brand LIKE :kw
+       OR model LIKE :kw
+       OR CAST(year AS CHAR) LIKE :kw
+    ORDER BY created_at DESC
+  ");
+  $kw = '%' . $keyword . '%';
+  $stmt->bindParam(':kw', $kw, PDO::PARAM_STR);
+  $stmt->execute();
+
+  return ok($stmt->fetchAll());
+}
+
 function cars_create()
 {
   $u = requireAuth();

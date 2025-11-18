@@ -33,17 +33,25 @@ switch (true) {
 
     // CARS
   case $path === 'cars' && $method === 'GET':
-    cars_list();
+    if (isset($_GET['q']) && $_GET['q'] !== '') {
+      cars_search($_GET['q']);
+    } else {
+      cars_list();
+    }
     exit;
+
   case preg_match('#^cars/(\d+)$#', $path, $m) && $method === 'GET':
     cars_detail((int)$m[1]);
     exit;
+
   case $path === 'cars' && $method === 'POST':
     cars_create();
     exit;
+
   case preg_match('#^cars/(\d+)$#', $path, $m) && ($method === 'PUT' || $method === 'PATCH'):
     cars_update((int)$m[1]);
     exit;
+
   case preg_match('#^cars/(\d+)$#', $path, $m) && $method === 'DELETE':
     cars_delete((int)$m[1]);
     exit;
