@@ -57,9 +57,18 @@ function authUser()
 
 function requireAuth()
 {
-  $u = authUser();
-  if (!$u) unauthorized('Token tidak valid atau tidak ada');
-  return $u;
+  $headers = getallheaders();
+  $auth = $headers['Authorization'] ?? '';
+  if (preg_match('/Bearer\s+(\w+)/', $auth, $m)) {
+    $token = $m[1];
+    $stmt = db()->prepare("SELECT * FROM users WHERE api_token = ?");
+    $stmt->execute([$token]);
+    $user = $stmt->fetch();
+    if ($user) return $user;
+  }
+  http_response_code(401);
+  echo json_encode(['success' => false, 'error' => 'Token tidak valid atau tidak ada']);
+  exit;
 }
 
 function requireRole($user, $role)
